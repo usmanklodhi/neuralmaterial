@@ -32,7 +32,7 @@ class MaterialDataset(Dataset):
         self.dataset_length = len(self.samples)
 
         # Log dataset loading success
-        self.logger.info(f"Successfully loaded {self.dataset_length} samples from {self.path_dir}.")
+        # self.logger.info(f"Successfully loaded {self.dataset_length} samples from {self.path_dir}.")
 
         # Define transforms for the dataset
         self.transforms = transforms.Compose([
@@ -73,7 +73,7 @@ class MaterialDataset(Dataset):
                 # Ensure all BRDF maps exist
                 if all(f.exists() for f in brdf_files.values()):
                     samples.append({'input': input_path, 'brdf': brdf_files})
-                    self.logger.info(f"Loaded sample: {sample_dir}")
+                    # self.logger.info(f"Loaded sample: {sample_dir}")
                 else:
                     self.logger.warning(f"Missing BRDF maps in: {sample_dir}")
             else:

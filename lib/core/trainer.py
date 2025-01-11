@@ -117,51 +117,51 @@ class Trainer():
             self._reset_prog_bar(mode, n_train)
 
             for step, train_batch in enumerate(train_dl, start=1):
-                # Debug print to inspect train_batch
-                print(f"[DEBUG] Step {step}: train_batch type: {type(train_batch)}")
-
-                if isinstance(train_batch, tuple):
-                    print(f"[DEBUG] train_batch contains {len(train_batch)} elements.")
-                    print(
-                        f"[DEBUG] train_batch[0] type: {type(train_batch[0])}, shape: {train_batch[0].shape if torch.is_tensor(train_batch[0]) else 'N/A'}")
-                    print(f"[DEBUG] train_batch[1] type: {type(train_batch[1])}")
-                    if isinstance(train_batch[1], dict):
-                        for key, value in train_batch[1].items():
-                            print(
-                                f"[DEBUG] train_batch[1]['{key}'] type: {type(value)}, shape: {value.shape if torch.is_tensor(value) else 'N/A'}")
-                elif isinstance(train_batch, dict):
-                    print("[DEBUG] train_batch is a dict.")
-                    for key, value in train_batch.items():
-                        print(
-                            f"[DEBUG] train_batch['{key}'] type: {type(value)}, shape: {value.shape if torch.is_tensor(value) else 'N/A'}")
-                elif isinstance(train_batch, list):
-                    print("[DEBUG] train_batch is a list.")
-                    print(f"[DEBUG] train_batch contains {len(train_batch)} elements.")
-                    for i, element in enumerate(train_batch):
-                        print(
-                            f"[DEBUG] train_batch[{i}] type: {type(element)}, shape: {element.shape if torch.is_tensor(element) else 'N/A'}")
-                else:
-                    print(f"[DEBUG] train_batch is of unexpected type: {type(train_batch)}")
-
-                # Detailed debug print to inspect train_batch content at index 1
-                if isinstance(train_batch[1], dict):
-                    print("[DEBUG] train_batch[1] is a dictionary.")
-                    print(f"[DEBUG] Dictionary keys: {train_batch[1].keys()}")
-                    for key, value in train_batch[1].items():
-                        print(f"[DEBUG] Key: '{key}', type: {type(value)}")
-                        if isinstance(value, torch.Tensor):
-                            print(f"[DEBUG] Value shape for key '{key}': {value.shape}")
-                        elif isinstance(value, list):
-                            print(f"[DEBUG] Value for key '{key}' is a list with {len(value)} elements.")
-                            for i, v in enumerate(value):
-                                print(
-                                    f"  [DEBUG] List element {i}: type: {type(v)}, shape: {v.shape if isinstance(v, torch.Tensor) else 'N/A'}")
-                        elif isinstance(value, dict):
-                            print(f"[DEBUG] Value for key '{key}' is a nested dictionary with keys: {value.keys()}")
-                        else:
-                            print(f"[DEBUG] Value for key '{key}' is of unsupported type: {type(value)}")
-
-                # Proceed with GPU transfer
+                # # Debug print to inspect train_batch
+                # print(f"[DEBUG] Step {step}: train_batch type: {type(train_batch)}")
+                #
+                # if isinstance(train_batch, tuple):
+                #     print(f"[DEBUG] train_batch contains {len(train_batch)} elements.")
+                #     print(
+                #         f"[DEBUG] train_batch[0] type: {type(train_batch[0])}, shape: {train_batch[0].shape if torch.is_tensor(train_batch[0]) else 'N/A'}")
+                #     print(f"[DEBUG] train_batch[1] type: {type(train_batch[1])}")
+                #     if isinstance(train_batch[1], dict):
+                #         for key, value in train_batch[1].items():
+                #             print(
+                #                 f"[DEBUG] train_batch[1]['{key}'] type: {type(value)}, shape: {value.shape if torch.is_tensor(value) else 'N/A'}")
+                # elif isinstance(train_batch, dict):
+                #     print("[DEBUG] train_batch is a dict.")
+                #     for key, value in train_batch.items():
+                #         print(
+                #             f"[DEBUG] train_batch['{key}'] type: {type(value)}, shape: {value.shape if torch.is_tensor(value) else 'N/A'}")
+                # elif isinstance(train_batch, list):
+                #     print("[DEBUG] train_batch is a list.")
+                #     print(f"[DEBUG] train_batch contains {len(train_batch)} elements.")
+                #     for i, element in enumerate(train_batch):
+                #         print(
+                #             f"[DEBUG] train_batch[{i}] type: {type(element)}, shape: {element.shape if torch.is_tensor(element) else 'N/A'}")
+                # else:
+                #     print(f"[DEBUG] train_batch is of unexpected type: {type(train_batch)}")
+                #
+                # # Detailed debug print to inspect train_batch content at index 1
+                # if isinstance(train_batch[1], dict):
+                #     print("[DEBUG] train_batch[1] is a dictionary.")
+                #     print(f"[DEBUG] Dictionary keys: {train_batch[1].keys()}")
+                #     for key, value in train_batch[1].items():
+                #         print(f"[DEBUG] Key: '{key}', type: {type(value)}")
+                #         if isinstance(value, torch.Tensor):
+                #             print(f"[DEBUG] Value shape for key '{key}': {value.shape}")
+                #         elif isinstance(value, list):
+                #             print(f"[DEBUG] Value for key '{key}' is a list with {len(value)} elements.")
+                #             for i, v in enumerate(value):
+                #                 print(
+                #                     f"  [DEBUG] List element {i}: type: {type(v)}, shape: {v.shape if isinstance(v, torch.Tensor) else 'N/A'}")
+                #         elif isinstance(value, dict):
+                #             print(f"[DEBUG] Value for key '{key}' is a nested dictionary with keys: {value.keys()}")
+                #         else:
+                #             print(f"[DEBUG] Value for key '{key}' is of unsupported type: {type(value)}")
+                #
+                # # Proceed with GPU transfer
                 train_batch = self._transfer_batch_to_gpu(train_batch)
                 outputs = model.forward_step(train_batch[0], mode)
                 loss = outputs['metrics']['loss']
