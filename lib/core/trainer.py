@@ -163,7 +163,7 @@ class Trainer():
 
                 # Proceed with GPU transfer
                 train_batch = self._transfer_batch_to_gpu(train_batch)
-                outputs = model.forward_step(train_batch, mode)
+                outputs = model.forward_step(train_batch[0], mode)
                 loss = outputs['metrics']['loss']
                 model.after_train_step()
                 model.backprop(loss)
