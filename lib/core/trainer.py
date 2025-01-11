@@ -143,6 +143,24 @@ class Trainer():
                 else:
                     print(f"[DEBUG] train_batch is of unexpected type: {type(train_batch)}")
 
+                # Detailed debug print to inspect train_batch content at index 1
+                if isinstance(train_batch[1], dict):
+                    print("[DEBUG] train_batch[1] is a dictionary.")
+                    print(f"[DEBUG] Dictionary keys: {train_batch[1].keys()}")
+                    for key, value in train_batch[1].items():
+                        print(f"[DEBUG] Key: '{key}', type: {type(value)}")
+                        if isinstance(value, torch.Tensor):
+                            print(f"[DEBUG] Value shape for key '{key}': {value.shape}")
+                        elif isinstance(value, list):
+                            print(f"[DEBUG] Value for key '{key}' is a list with {len(value)} elements.")
+                            for i, v in enumerate(value):
+                                print(
+                                    f"  [DEBUG] List element {i}: type: {type(v)}, shape: {v.shape if isinstance(v, torch.Tensor) else 'N/A'}")
+                        elif isinstance(value, dict):
+                            print(f"[DEBUG] Value for key '{key}' is a nested dictionary with keys: {value.keys()}")
+                        else:
+                            print(f"[DEBUG] Value for key '{key}' is of unsupported type: {type(value)}")
+
                 # Proceed with GPU transfer
                 train_batch = self._transfer_batch_to_gpu(train_batch)
                 outputs = model.forward_step(train_batch, mode)
