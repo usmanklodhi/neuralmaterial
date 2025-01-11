@@ -53,15 +53,35 @@ class LossEngine(torch.nn.Module):
 
         return crops_in, crops_out
 
-    def forward(self, image_in, image_out, mu, logvar, step):
+    def compute_brdf_losses(self, brdf_maps, brdf_maps_gt):
+        """
+        Compute supervised losses between predicted and ground-truth BRDF maps.
+        """
+        losses = {}
 
+        # Iterate over each BRDF map (diffuse, specular, etc.)
+        for map_name, pred_map in brdf_maps.items():
+            gt_map = brdf_maps_gt[map_name]
+            # L1 loss for BRDF comparison
+            l1_loss = torch.nn.functional.l1_loss(pred_map, gt_map)
+            losses[f'{map_name}_loss'] = l1_loss
+
+        # Total BRDF loss
+        total_brdf_loss = sum(losses.values())
+        losses['total_brdf_loss'] = total_brdf_loss
+
+        return losses
+
+    def forward(self, image_in, image_out, mu, logvar, step, brdf_maps=None, brdf_maps_gt=None):
+        # KL Loss
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-        # slowly increase kl loss
+        # Slowly increase KL loss
         N = 10000
         if step < N:
             kl_loss = (step / N) * kl_loss
 
+        # Compute image-related losses
         crops_in, crops_out = self.get_crops(image_in, image_out)
         crops_in_vgg = self.vgg(crops_in)
         crops_out_vgg = self.vgg(crops_out)
@@ -69,13 +89,25 @@ class LossEngine(torch.nn.Module):
         gram_loss = self.gram_loss(crops_out_vgg, crops_in_vgg)
         vggps_loss = self.vggps_loss(crops_out_vgg, crops_in_vgg)
 
-        loss = gram_loss * self.cfg.gram + vggps_loss * self.cfg.vggps + self.cfg.kl * kl_loss
+        # BRDF Map Losses
+        brdf_losses = {}
+        if brdf_maps is not None and brdf_maps_gt is not None:
+            brdf_losses = self.compute_brdf_losses(brdf_maps, brdf_maps_gt)
+
+        # Total loss
+        loss = (
+                gram_loss * self.cfg.gram
+                + vggps_loss * self.cfg.vggps
+                + self.cfg.kl * kl_loss
+                + brdf_losses.get('total_brdf_loss', 0.0) * self.cfg.brdf_weight
+        )
 
         losses = {
             'loss': loss.mean(),
             'gram': gram_loss,
             'vggps': vggps_loss,
             'kl': kl_loss,
+            **brdf_losses  # Include individual BRDF losses in the output
         }
 
         return losses

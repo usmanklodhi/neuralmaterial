@@ -71,11 +71,19 @@ class NeuralMaterial(CoreModule):
         return image_out, brdf_maps, z, mu, logvar
 
     def forward_step(self, batch, mode):
-        image_out, brdf_maps, z, mu, logvar = self.forward(batch, mode)
-        loss = self.loss(batch, image_out, mu, logvar, self.global_step)
+        # Extract the input image and ground-truth BRDF maps
+        image_in = batch[0]  # Input image
+        brdf_maps_gt = batch[1]  # Ground-truth BRDF maps
 
+        # Forward pass through the model
+        image_out, brdf_maps, z, mu, logvar = self.forward(image_in, mode)
+
+        # Compute losses (image and BRDF-specific)
+        loss = self.loss(image_in, image_out, mu, logvar, self.global_step, brdf_maps, brdf_maps_gt)
+
+        # Prepare outputs
         outputs = {
-            'images': {'image_in': batch, 'image_out': image_out, **brdf_maps},
+            'images': {'image_in': image_in, 'image_out': image_out, **brdf_maps},
             'metrics': loss
         }
 

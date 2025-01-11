@@ -52,7 +52,7 @@ class MaterialDataset(Dataset):
         Each folder should contain 'input.png' and a 'brdf' subfolder.
         """
         samples = []
-        self.logger.info(f"Scanning dataset directory: {self.path_dir}")
+        # self.logger.info(f"Scanning dataset directory: {self.path_dir}")
 
         for sample_dir in self.path_dir.iterdir():
             if not sample_dir.is_dir():
