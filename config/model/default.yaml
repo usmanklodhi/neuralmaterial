@@ -12,4 +12,4 @@ loss:
   gram: 1
   vggps: 0.001
   kl: 0.0005
-  brdf_weight: 1.0  # Adjust this weight to balance BRDF losses
+  brdf_weight: 0.05  # Adjust this weight to balance BRDF losses
