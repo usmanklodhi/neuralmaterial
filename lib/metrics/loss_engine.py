@@ -62,13 +62,35 @@ class LossEngine(torch.nn.Module):
         # Iterate over each BRDF map (diffuse, specular, etc.)
         for map_name, pred_map in brdf_maps.items():
             gt_map = brdf_maps_gt[map_name]
+
+            # Debugging: Check shapes and data types
+            print(f"[DEBUG] Processing BRDF map: '{map_name}'")
+            print(f"[DEBUG] Predicted map shape: {pred_map.shape}, dtype: {pred_map.dtype}")
+            print(f"[DEBUG] Ground-truth map shape: {gt_map.shape}, dtype: {gt_map.dtype}")
+
+            # Ensure shapes are compatible
+            if pred_map.shape != gt_map.shape:
+                raise ValueError(
+                    f"Shape mismatch for '{map_name}': Predicted map shape {pred_map.shape} "
+                    f"does not match ground-truth shape {gt_map.shape}"
+                )
+
             # L1 loss for BRDF comparison
-            l1_loss = torch.nn.functional.l1_loss(pred_map, gt_map)
-            losses[f'{map_name}_loss'] = l1_loss
+            try:
+                l1_loss = torch.nn.functional.l1_loss(pred_map, gt_map)
+                losses[f'{map_name}_loss'] = l1_loss
+                print(f"[DEBUG] '{map_name}' L1 loss: {l1_loss.item()}")
+            except Exception as e:
+                print(f"[ERROR] Failed to compute L1 loss for '{map_name}': {e}")
+                continue
 
         # Total BRDF loss
-        total_brdf_loss = sum(losses.values())
-        losses['total_brdf_loss'] = total_brdf_loss
+        if losses:
+            total_brdf_loss = sum(losses.values())
+            losses['total_brdf_loss'] = total_brdf_loss
+            print(f"[DEBUG] Total BRDF loss: {total_brdf_loss.item()}")
+        else:
+            print("[ERROR] No valid BRDF losses computed.")
 
         return losses
 
