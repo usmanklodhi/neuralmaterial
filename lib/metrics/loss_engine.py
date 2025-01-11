@@ -59,38 +59,31 @@ class LossEngine(torch.nn.Module):
         """
         losses = {}
 
-        # Iterate over each BRDF map (diffuse, specular, etc.)
         for map_name, pred_map in brdf_maps.items():
             gt_map = brdf_maps_gt[map_name]
 
-            # Debugging: Check shapes and data types
+            # Debugging: Log shapes
             print(f"[DEBUG] Processing BRDF map: '{map_name}'")
             print(f"[DEBUG] Predicted map shape: {pred_map.shape}, dtype: {pred_map.dtype}")
             print(f"[DEBUG] Ground-truth map shape: {gt_map.shape}, dtype: {gt_map.dtype}")
 
-            # Ensure shapes are compatible
-            if pred_map.shape != gt_map.shape:
-                raise ValueError(
-                    f"Shape mismatch for '{map_name}': Predicted map shape {pred_map.shape} "
-                    f"does not match ground-truth shape {gt_map.shape}"
-                )
+            # Align shapes if necessary
+            if pred_map.shape[1] < gt_map.shape[1]:  # Expand predicted map
+                pred_map = pred_map.expand(-1, gt_map.shape[1], -1, -1)
+                print(f"[DEBUG] Expanded predicted map to: {pred_map.shape}")
+            elif pred_map.shape[1] > gt_map.shape[1]:  # Reduce ground-truth map
+                gt_map = gt_map.mean(dim=1, keepdim=True)
+                print(f"[DEBUG] Reduced ground-truth map to: {gt_map.shape}")
 
-            # L1 loss for BRDF comparison
-            try:
-                l1_loss = torch.nn.functional.l1_loss(pred_map, gt_map)
-                losses[f'{map_name}_loss'] = l1_loss
-                print(f"[DEBUG] '{map_name}' L1 loss: {l1_loss.item()}")
-            except Exception as e:
-                print(f"[ERROR] Failed to compute L1 loss for '{map_name}': {e}")
-                continue
+            # Compute L1 loss
+            l1_loss = torch.nn.functional.l1_loss(pred_map, gt_map)
+            losses[f'{map_name}_loss'] = l1_loss
+            print(f"[DEBUG] '{map_name}' L1 loss: {l1_loss.item()}")
 
         # Total BRDF loss
-        if losses:
-            total_brdf_loss = sum(losses.values())
-            losses['total_brdf_loss'] = total_brdf_loss
-            print(f"[DEBUG] Total BRDF loss: {total_brdf_loss.item()}")
-        else:
-            print("[ERROR] No valid BRDF losses computed.")
+        total_brdf_loss = sum(losses.values())
+        losses['total_brdf_loss'] = total_brdf_loss
+        print(f"[DEBUG] Total BRDF loss: {total_brdf_loss.item()}")
 
         return losses
 
