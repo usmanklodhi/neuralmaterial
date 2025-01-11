@@ -83,7 +83,7 @@ class LossEngine(torch.nn.Module):
         # Total BRDF loss
         total_brdf_loss = sum(losses.values())
         losses['total_brdf_loss'] = total_brdf_loss
-        # print(f"[DEBUG] Total BRDF loss: {total_brdf_loss.item()}")
+        #  print(f"[DEBUG] Total BRDF loss: {total_brdf_loss.item()}")
 
         return losses
 
