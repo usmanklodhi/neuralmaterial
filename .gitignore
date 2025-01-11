@@ -3,3 +3,4 @@ outputs/
 
 *.ckpt
 !latest.ckpt
+train_blended_limited/

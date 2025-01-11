@@ -103,7 +103,7 @@ class Trainer():
         self._print_dataset_size(train_dl, 'train')
         self._print_dataset_size(train_dl, 'val')
 
-        self._load_checkpoint(model)
+        self._load_checkpoint(model) # Error because of non-availability of GPU 
 
         if self.cfg.print_num_params:
             model.print_num_params()

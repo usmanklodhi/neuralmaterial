@@ -10,6 +10,7 @@ from lib.models.rotation_encoder import RotationEncoder
 from lib.models.encoder import resnet50
 from lib.models.decoder import Decoder
 
+
 class NeuralMaterial(CoreModule):
 
     def __init__(self, cfg):
@@ -50,7 +51,7 @@ class NeuralMaterial(CoreModule):
         }
 
         return brdf_maps
-    
+
     def forward(self, batch, mode, size=None):
 
         z, mu, logvar, rot = self.encode(batch, mode)
@@ -64,31 +65,15 @@ class NeuralMaterial(CoreModule):
         # convert noise to brdf maps using CNN
         brdf_maps = self.decode(z, x)
 
-        # have ground-truth brdf maps
-        brdf_maps_gt = {
-            # Add paths here
-            # 'diffuse': ,
-            # 'specular': ,
-            # 'roughness': ,
-            # 'normal':
-        }
-
         # render brdf maps using differentiable rendering
         image_out = self.renderer(brdf_maps, rot_angle=rot, light_shift=None)
 
-        # Render ground-truth brdf maps
-        image_gt = self.renderer(brdf_maps_gt, rot_angle=rot, light_shift=None)
-
-        return image_out, brdf_maps, image_gt, brdf_maps_gt, z, mu, logvar
+        return image_out, brdf_maps, z, mu, logvar
 
     def forward_step(self, batch, mode):
-        image_out, brdf_maps, image_gt, brdf_maps_gt, z, mu, logvar = self.forward(batch, mode)
-        loss = self.loss(batch, image_out, image_gt, mu, logvar, self.global_step)
+        image_out, brdf_maps, z, mu, logvar = self.forward(batch, mode)
+        loss = self.loss(batch, image_out, mu, logvar, self.global_step)
 
-        # We have to think of a way to compute losses between brdf_maps and brdf_maps_gt
-        # Brdf maps: diffuse, specular, roughness, normal
-        # TO-DO
-        
         outputs = {
             'images': {'image_in': batch, 'image_out': image_out, **brdf_maps},
             'metrics': loss
@@ -102,7 +87,7 @@ class NeuralMaterial(CoreModule):
             self.parameters(), self.cfg.lr,
             weight_decay=self.cfg.weight_decay
         )
-    
+
     def configure_optimizer_finetuning(self):
 
         return torch.optim.Adam(

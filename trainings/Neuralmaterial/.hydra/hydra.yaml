@@ -124,12 +124,12 @@ hydra:
         exclude_keys: []
   runtime:
     version: 1.1.1
-    cwd: /home/henzler/Documents/github/neuralmaterial
+    cwd: /home/usmanklodhi/neuralmaterial
     config_sources:
     - path: hydra.conf
       schema: pkg
       provider: hydra
-    - path: /home/henzler/Documents/github/neuralmaterial/config
+    - path: /home/usmanklodhi/neuralmaterial/config
       schema: file
       provider: main
     - path: ''

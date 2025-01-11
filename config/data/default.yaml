@@ -1,5 +1,5 @@
 size: [384,512]
-path: '../../flash_images'
+path: '../../trainingDelicante'
 bs: 4
 n_workers: 12
 train_samples: 100000

@@ -2,6 +2,7 @@ from .losses import *
 import torch
 import kornia
 
+
 class LossEngine(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -52,7 +53,7 @@ class LossEngine(torch.nn.Module):
 
         return crops_in, crops_out
 
-    def forward(self, image_in, image_out, image_gt, mu, logvar, step):
+    def forward(self, image_in, image_out, mu, logvar, step):
 
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
@@ -68,13 +69,6 @@ class LossEngine(torch.nn.Module):
         gram_loss = self.gram_loss(crops_out_vgg, crops_in_vgg)
         vggps_loss = self.vggps_loss(crops_out_vgg, crops_in_vgg)
 
-        crops_gt_in, crops_gt_out = self.get_crops(image_out, image_gt)
-        crops_gt_in_vgg = self.vgg(crops_gt_in)
-        crops_gt_out_vgg = self.vgg(crops_gt_out)
-
-        gram_loss += self.gram_loss(crops_gt_out_vgg, crops_gt_in_vgg)
-        vggps_loss += self.vggps_loss(crops_gt_out_vgg, crops_gt_in_vgg)
-
         loss = gram_loss * self.cfg.gram + vggps_loss * self.cfg.vggps + self.cfg.kl * kl_loss
 
         losses = {
@@ -83,7 +77,6 @@ class LossEngine(torch.nn.Module):
             'vggps': vggps_loss,
             'kl': kl_loss,
         }
-     
-        return losses
 
+        return losses
 
