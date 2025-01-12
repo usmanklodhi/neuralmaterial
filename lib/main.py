@@ -72,8 +72,11 @@ class NeuralMaterial(CoreModule):
 
     def forward_step(self, batch, mode):
         # Extract the input image and ground-truth BRDF maps
+        brdf_maps_gt = None
+
         image_in = batch[0]  # Input image
-        brdf_maps_gt = batch[1]  # Ground-truth BRDF maps
+        if mode == 'train':
+            brdf_maps_gt = batch[1]  # Ground-truth BRDF maps
 
         # Forward pass through the model
         image_out, brdf_maps, z, mu, logvar = self.forward(image_in, mode)
