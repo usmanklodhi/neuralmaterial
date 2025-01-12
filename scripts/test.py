@@ -52,7 +52,7 @@ if __name__ == '__main__':
     )
 
     # load all images in folder
-    image_dirs = [str(p) for p in Path('flash_images', 'test', args.test_image_id).iterdir() if p.is_file()]
+    image_dirs = [str(p) for p in Path('trainingDelicante', 'test', args.test_image_id).iterdir() if p.is_file()]
 
     # read first image in dir, change if required
     image = tfm(io.read_image(image_dirs[0]))[None]
