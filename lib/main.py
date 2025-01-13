@@ -75,7 +75,8 @@ class NeuralMaterial(CoreModule):
         brdf_maps_gt = None
 
         image_in = batch[0]  # Input image
-        image_in = image_in.unsqueeze(0)  # Adds a batch dimension at the 0th position
+        if mode == 'test':
+            image_in = image_in.unsqueeze(0)  # Adds a batch dimension at the 0th position
 
         if mode == 'train':
             brdf_maps_gt = batch[1]  # Ground-truth BRDF maps
